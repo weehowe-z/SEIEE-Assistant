@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*- 
-
+import xlwt #deal with excel
 import urllib2
+
 def getInfo(student_id):
 	url_base = 'http://z.seiee.com/index.php/Score/search?sid='
 	student_id_str = str(student_id) 
@@ -28,16 +29,29 @@ def getInfo(student_id):
 	mark = page[mark_start+31:mark_end]
 	rank = page[rank_start+31:rank_end]
 
-	return name,id,mark,rank
+	return [name,id,mark,rank]
 
-#print data
+def createXls():
+	book = xlwt.Workbook(encoding='utf-8',style_compression=0)
+	sheet = book.add_sheet('test',cell_overwrite_ok=True)
+	sheet.write(0,0,'name')
+	sheet.write(0,1,'id')
+	sheet.write(0,2,'mark')
+	sheet.write(0,3,'rank')
+	xpos = 0
+	for i in range(0,800):
+		if i != 172 and i !=271 and i != 493:
+			info = getInfo(i)
+			if info != None:
+				print 'deal ' + str(i)
+				xpos = xpos +1
+				sheet.write(xpos,0,info[0])
+				sheet.write(xpos,1,info[1])
+				sheet.write(xpos,2,info[2])
+				sheet.write(xpos,3,info[3])
+	book.save('studentInfo.xls')
+
+
 
 if __name__ == '__main__':
-#	print getInfo(493)
-
-	for i in range(0,800):
-		if i !=119 and i != 172 and i != 493: 
-			print getInfo(i)
-
-#url_base = 'http://z.seiee.com/index.php/Score/search?sid='
-
+	createXls()
