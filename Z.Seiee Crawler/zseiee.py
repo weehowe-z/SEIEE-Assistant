@@ -3,7 +3,12 @@
 import urllib2
 def getInfo(student_id):
 	url_base = 'http://z.seiee.com/index.php/Score/search?sid='
-	url = url_base + '5130309'+str(student_id)
+	student_id_str = str(student_id) 
+	if len(student_id_str) == 1:
+		student_id_str = '00'+student_id_str
+	elif len(student_id_str) == 2:
+		student_id_str = '0' + student_id_str
+	url = url_base + '5130309'+ student_id_str
 	page = urllib2.urlopen(url).read()
 
 	name_start = page.find('<td width="70%">',0)
@@ -26,8 +31,13 @@ def getInfo(student_id):
 	return name,id,mark,rank
 
 #print data
+
 if __name__ == '__main__':
-	for i in range(100,730):
-		if i != 172 and i != 493: 
+#	print getInfo(493)
+
+	for i in range(0,800):
+		if i !=119 and i != 172 and i != 493: 
 			print getInfo(i)
-#	print getInfo(172)
+
+#url_base = 'http://z.seiee.com/index.php/Score/search?sid='
+
