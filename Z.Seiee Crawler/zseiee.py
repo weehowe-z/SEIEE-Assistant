@@ -62,27 +62,6 @@ def dealXls():
 				savesheet.write(i,6,info[0])
 	savebook.save('content(new).xls')
 	return 0
-	#book = xlwt.Workbook(encoding='utf-8',style_compression=0)
-	sheet = book.add_sheet('test',cell_overwrite_ok=True)
-	sheet.write(0,0,'姓名'.decode('utf-8'))
-	sheet.write(0,1,'学号'.decode('utf-8'))
-	sheet.write(0,2,'素拓'.decode('utf-8'))
-	sheet.write(0,3,'排名'.decode('utf-8'))
-	xpos = 0
-	for i in range(0,800):
-		print i
-		if i != 172 and i !=271 and i != 493:
-			info = getInfo(i)
-			if info != None:
-				print 'deal ' + str(i)
-				xpos = xpos +1
-				sheet.write(xpos,0,info[0])
-				sheet.write(xpos,1,info[1])
-				sheet.write(xpos,2,info[2])
-				sheet.write(xpos,3,info[3])
-	book.save('studentInfo.xls')
-
-
 
 if __name__ == '__main__':
 	dealXls()
