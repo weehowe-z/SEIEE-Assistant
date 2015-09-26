@@ -6,6 +6,10 @@ import datetime
 #sender name or sender address are not allowed to contain 'receiver'
 def send_email(sender, receivers, news):
 
+	if len(news) == 0:
+		print "There is no email to send"
+		return
+
 	sender_add = sender['address']
 	sender_name = sender['name']
 	sender_key = sender['key']
@@ -39,20 +43,31 @@ def send_email(sender, receivers, news):
 
 	server.quit()
 
-def getInfo():
+def has_no_keyword(title,keyword = None):
+	if keyword == None:
+		keyword = ['研究生','硕士','博士']
+	for i in range(0,len(keyword)):
+		if title.find(keyword[i]) != -1 and title.find('本科') == -1:
+			return False
+	return True
+
+def getInfo(date = None):
 	url = 'http://xsb.seiee.sjtu.edu.cn/xsb/index.htm'
 	url_base = 'http://xsb.seiee.sjtu.edu.cn'
+	news = []
+
 	try:
 		page = urllib2.urlopen(url,timeout=2).read()
 	except:
 		print "cannot access to website"
 		return None
 
-	today = datetime.datetime.now().date()
-	today_str = today.strftime('%Y-%m-%d')
+	if date == None:
+		today = datetime.datetime.now().date()
+		today_str = today.strftime('%Y-%m-%d')
+	else:
+		today_str = date
 	
-	newslist = []
-
 	spanpos = 0
 	while True:
 		startpos = page.find('<a title="',spanpos)
@@ -66,24 +81,25 @@ def getInfo():
 			href = page[hrefpos_start+6:hrefpos_end]
 			title = page[startpos+10:hrefpos_start-2]
 			info_url = url_base + href
-			news = {}
-			news['title'] = title
-			news['url'] = info_url
-			newslist.append(news)
-	return newslist
+			newinfo = {}
+			newinfo['title'] = title
+			newinfo['url'] = info_url
+			if has_no_keyword(title, keyword = None) == True:
+				news.append(newinfo)
+	return news
 
-def push(newslist):
+def push(news):
 	sender = {
-		'address': 'your_email@gmail.com',
-		'name': 'your_name',
-		'key': 'your_key'
+		'address': 'seiee.reminder@gmail.com',
+		'name': 'SEIEE REMINDER',
+		'key': 'seieereminder'
 	}
-	
-	receivers = ['weehowe.z@gmail.com','575877982@qq.com']
+
+	receivers = ['weehowe.z@gmail.com']
 	
 	print "Prepare to send email"
-	send_email(sender,receivers,newslist)
+	send_email(sender,receivers,news)
 
 
 if __name__ == '__main__':
-	push(getInfo())
+	push(getInfo(date = '2015-09-25'))
