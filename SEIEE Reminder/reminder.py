@@ -1,9 +1,6 @@
 # -*- coding:utf-8 -*- 
-import smtplib
-import urllib2
-import datetime
+import smtplib,urllib2,datetime
 
-#sender name or sender address are not allowed to contain 'receiver'
 def send_email(sender, receivers, news):
 
 	if len(news) == 0:
@@ -57,7 +54,7 @@ def getInfo(date = None):
 	news = []
 
 	try:
-		page = urllib2.urlopen(url,timeout=2).read()
+		page = urllib2.urlopen(url,timeout=5).read()
 	except:
 		print "cannot access to website"
 		return None
@@ -102,4 +99,4 @@ def push(news):
 
 
 if __name__ == '__main__':
-	push(getInfo(date = '2015-09-25'))
+	push(getInfo())
