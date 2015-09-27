@@ -48,7 +48,7 @@ def has_no_keyword(title,keyword = None):
 			return False
 	return True
 
-def getInfo(date = None):
+def getInfo(logfile,date = None):
 	url = 'http://xsb.seiee.sjtu.edu.cn/xsb/index.htm'
 	url_base = 'http://xsb.seiee.sjtu.edu.cn'
 	news = []
@@ -56,7 +56,7 @@ def getInfo(date = None):
 	try:
 		page = urllib2.urlopen(url,timeout=5).read()
 	except:
-		print "cannot access to website"
+		logfile.write("Cannot access to website\n")
 		return None
 
 	if date == None:
@@ -99,4 +99,12 @@ def push(news):
 
 
 if __name__ == '__main__':
-	push(getInfo())
+	logfile = open('log.txt','a')
+	time = datetime.datetime.now()
+	time_str = time.strftime('%Y-%m-%d %H:%M:%S')
+	logfile.write('Task begin at '+ time_str +'\n')
+	push(getInfo(logfile))
+	time = datetime.datetime.now()
+	time_str = time.strftime('%Y-%m-%d %H:%M:%S')
+	logfile.write('Task end at '+ time_str + '\n')
+	logfile.close()
