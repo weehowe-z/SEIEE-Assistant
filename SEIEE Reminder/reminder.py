@@ -1,6 +1,15 @@
 # -*- coding:utf-8 -*- 
 import smtplib,urllib2,datetime
 
+
+def write_log(logfile,string,need_time = False):
+	if need_time == False:
+		logfile.write(string+'\n')
+	else:
+		time = datetime.datetime.now()
+		time_str = time.strftime('%Y-%m-%d %H:%M:%S')
+		logfile.write(string + '\t' + time_str +'\n')
+
 def send_email(sender, receivers, news):
 
 	if len(news) == 0:
@@ -48,7 +57,7 @@ def has_no_keyword(title,keyword = None):
 			return False
 	return True
 
-def getInfo(logfile,date = None):
+def getInfo(logfile,date):
 	url = 'http://xsb.seiee.sjtu.edu.cn/xsb/index.htm'
 	url_base = 'http://xsb.seiee.sjtu.edu.cn'
 	news = []
@@ -56,7 +65,7 @@ def getInfo(logfile,date = None):
 	try:
 		page = urllib2.urlopen(url,timeout=5).read()
 	except:
-		logfile.write("Cannot access to website\n")
+		write_log(logfile,"[Error]Cannot access to website")
 		return None
 
 	if date == None:
@@ -83,9 +92,17 @@ def getInfo(logfile,date = None):
 			newinfo['url'] = info_url
 			if has_no_keyword(title, keyword = None) == True:
 				news.append(newinfo)
+				write_log(logfile,"[News] Get useful information: [" + newinfo['title'] + "]")
+			else:
+				write_log(logfile,"[News] Get useless information: [" + newinfo['title'] + "]")
+
+	write_log(logfile,"[News] " + str(len(news)) + ' news to send')
+
 	return news
 
-def push(news):
+def push(date = None):
+	logfile = open('log.txt','a')
+
 	sender = {
 		'address': 'seiee.reminder@gmail.com',
 		'name': 'SEIEE REMINDER',
@@ -94,17 +111,19 @@ def push(news):
 
 	receivers = ['weehowe.z@gmail.com']
 	
-	print "Prepare to send email"
+	write_log(logfile,'--------------------Task begin--------------------')
+	write_log(logfile,'[Current Time]',True)
+	write_log(logfile,'[Receivers]:')
+	for i in range(0,len(receivers)):
+		write_log(logfile,receivers[i])
+
+	news = getInfo(logfile,date)
 	send_email(sender,receivers,news)
+
+	write_log(logfile,'[Current Time]',True)
+	write_log(logfile,'--------------------Task finish--------------------\n')
+	logfile.close()
 
 
 if __name__ == '__main__':
-	logfile = open('log.txt','a')
-	time = datetime.datetime.now()
-	time_str = time.strftime('%Y-%m-%d %H:%M:%S')
-	logfile.write('Task begin at '+ time_str +'\n')
-	push(getInfo(logfile))
-	time = datetime.datetime.now()
-	time_str = time.strftime('%Y-%m-%d %H:%M:%S')
-	logfile.write('Task end at '+ time_str + '\n')
-	logfile.close()
+	push()
