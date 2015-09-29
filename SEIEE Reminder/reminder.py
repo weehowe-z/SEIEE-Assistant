@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*- 
-import smtplib,urllib2,datetime
+import smtplib,urllib2
+import ConfigParser
+import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -35,10 +37,10 @@ def send_email(sender, receivers, news):
 			<br/><br/><br/></br>
 		</p>
 		<p>
-			------------------------------------</br>
+			------------------------------------
 		</p>
 		<span><strong><small>&copy;<i>2015 SEIEE Reminder<i/></small></strong></span>&nbsp;&nbsp;&nbsp;	
-		<span><small><i>Fork me at <a href="https://github.com/weehowe-z/littleProjects/tree/master/SEIEE%\20Reminder">GitHub</a></i></small></span>
+		<span><small><i>Fork me at <a href="https://github.com/weehowe-z/littleProjects">GitHub</a></i></small></span>
 	  </body>
 	</html>
 	"""		
@@ -65,13 +67,14 @@ def send_email(sender, receivers, news):
 		msg.attach(MIMEText(html, 'html'))
 
 		for j in range(0,len(receivers)):
+			del msg['To']
 			msg['To'] = receivers[j]
 			print "now send mail to " + receivers[j] + ' ' + str(len(receivers)*i+j+1) + '/' + str(len(news)*len(receivers))
 			server.sendmail(sender_add,[receivers[j]],msg.as_string())
 	
 	server.quit()
 
-def has_no_keyword(title,keyword = None):
+def has_relationship(title,keyword = None):
 	if keyword == None:
 		keyword = ['研究生','硕士','博士']
 	for i in range(0,len(keyword)):
@@ -112,7 +115,7 @@ def getInfo(logfile,date):
 			newinfo = {}
 			newinfo['title'] = title
 			newinfo['url'] = info_url
-			if has_no_keyword(title, keyword = None) == True:
+			if has_relationship(title, keyword = None) == True:
 				news.append(newinfo)
 				write_log(logfile,"[News] Get useful information: [" + newinfo['title'] + "]")
 			else:
@@ -122,7 +125,18 @@ def getInfo(logfile,date):
 
 	return news
 
+def configSectionMap(section,config):
+	dict = {}
+	for key in config.options(section):
+		value = config.get(section,key)
+		dict[key] = value
+	return dict
+
+
 def push(date = None):
+
+	Config = ConfigParser.ConfigParser()
+	Config.read('reminder-setting.conf')
 	logfile = open('log.txt','a')
 
 	sender = {
@@ -131,8 +145,10 @@ def push(date = None):
 		'key': 'seieereminder'
 	}
 
-	receivers = ['weehowe.z@gmail.com']
-	
+	sender = configSectionMap('sender',Config)
+	receivers_dic = configSectionMap('receivers',Config)
+	receivers = receivers_dic['receivers'].split(',')
+
 	write_log(logfile,'--------------------Task begin--------------------')
 	write_log(logfile,'[Current Time]',True)
 	write_log(logfile,'[Receivers]:')
@@ -145,7 +161,6 @@ def push(date = None):
 	write_log(logfile,'[Current Time]',True)
 	write_log(logfile,'--------------------Task finish--------------------\n')
 	logfile.close()
-
 
 if __name__ == '__main__':
 	push()
