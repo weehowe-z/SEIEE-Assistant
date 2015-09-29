@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*- 
 import smtplib,urllib2,datetime
-
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 def write_log(logfile,string,need_time = False):
 	if need_time == False:
@@ -20,9 +21,28 @@ def send_email(sender, receivers, news):
 	sender_name = sender['name']
 	sender_key = sender['key']
 
-	msg = "From: " + sender_name + " <" + sender_add + ">\n" \
-			+ "To: <receiver>\n" + "Subject: " + "subject" + "\n\n" \
-			+ "content"
+	html_template = """
+	<html>
+	  <head></head>
+	  <body>
+		<p>
+			##information##
+		</p>
+		<p>
+			##url##
+		</p>
+		<p>
+			<br/><br/><br/></br>
+		</p>
+		<p>
+			------------------------------------</br>
+		</p>
+		<span><strong><small>&copy;<i>2015 SEIEE Reminder<i/></small></strong></span>&nbsp;&nbsp;&nbsp;	
+		<span><small><i>Fork me at <a href="https://github.com/weehowe-z/littleProjects/tree/master/SEIEE%\20Reminder">GitHub</a></i></small></span>
+	  </body>
+	</html>
+	"""		
+	content_template = "已经在学生办网站发布啦，快去看看吧！"
 
 	try:
 		server = smtplib.SMTP('smtp.gmail.com:587')
@@ -32,21 +52,23 @@ def send_email(sender, receivers, news):
 	except:
 		print "smtp.gmail.com connection failed"
 		return
-
+	
 	for i in range(0,len(news)):
 		title = news[i]['title']
 		url = news[i]['url']
 
-		subject = '【电院提醒】' + title
-		content = '【' + title + "】已经在学生办网站发布了,赶紧去看看吧!\n" \
-					 + url + "\n\n\n\n ---------------------\n" \
-					 + (u"\u00A9").encode('utf-8') +' 2015 SEIEE Reminder'
+		msg = MIMEMultipart('alternative')
+		msg['Subject'] = '【电院提醒】' + title
+		msg['From'] = sender_name
+		content = '【' + title + '】'+content_template
+		html = html_template.replace('##information##',content).replace('##url##',url)
+		msg.attach(MIMEText(html, 'html'))
 
 		for j in range(0,len(receivers)):
+			msg['To'] = receivers[j]
 			print "now send mail to " + receivers[j] + ' ' + str(len(receivers)*i+j+1) + '/' + str(len(news)*len(receivers))
-			msg_send = msg.replace('receiver',receivers[j]).replace('subject',subject).replace('content',content)
-			server.sendmail(sender_add,[receivers[j]],msg_send)
-
+			server.sendmail(sender_add,[receivers[j]],msg.as_string())
+	
 	server.quit()
 
 def has_no_keyword(title,keyword = None):
@@ -84,7 +106,7 @@ def getInfo(logfile,date):
 		if date == today_str:
 			hrefpos_start = page.find('href=',startpos)
 			hrefpos_end = page.find('target=',startpos)
-			href = page[hrefpos_start+6:hrefpos_end]
+			href = page[hrefpos_start+6:hrefpos_end-2]
 			title = page[startpos+10:hrefpos_start-2]
 			info_url = url_base + href
 			newinfo = {}
