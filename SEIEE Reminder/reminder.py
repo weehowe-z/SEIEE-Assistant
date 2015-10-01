@@ -28,13 +28,13 @@ def send_email(sender, receivers, news):
 		</p>
 			##content##
 		<p>
-			<br/><br/><br/></br>
+			<br/>
 		</p>
 		<p>
 			------------------------------------
 		</p>
 		<span><strong><small>&copy;<i>2015 SEIEE Reminder<i/></small></strong></span>&nbsp;&nbsp;&nbsp;	
-		<span><small><i>Fork me at <a href="https://github.com/weehowe-z/littleProjects">GitHub</a></i></small></span>
+		<span><small><i>Fork me on <a href="https://github.com/weehowe-z/littleProjects">GitHub</a></i></small></span>
 	  </body>
 	</html>
 	"""
@@ -82,7 +82,6 @@ def attachImages(content):
 	url_base = 'http://xsb.seiee.sjtu.edu.cn'
 	image_start = 0
 	while True:
-		print 1
 		image_start = content.find('<p><img id="showImage\"',image_start+1)
 		if image_start == -1:
 			break
@@ -92,6 +91,20 @@ def attachImages(content):
 			origin_image_url = content[src_start+5:src_end]
 			image_url = url_base + origin_image_url.replace(';','&')
 			content = content.replace(origin_image_url,image_url)
+	return content
+
+def attachFiles(content):
+	url_base = 'http://xsb.seiee.sjtu.edu.cn'
+	file_start = 0
+	while True:
+		file_start = content.find('<a href="/content/',file_start+1)
+		if file_start == -1:
+			break
+		else:
+			file_end = content.find('\"',file_start+9)
+			origin_file_url = content[file_start+9:file_end]
+			file_url = url_base + origin_file_url.replace(';','&')
+			content = content.replace(origin_file_url,file_url)
 	return content
 
 # get news title, content, and url
@@ -133,6 +146,7 @@ def getInfo(logfile,date = None):
 			content_end = content_page.find('<script>',content_start)
 			content = content_page[content_start:content_end-1]
 			content = attachImages(content)
+			content = attachFiles(content)
 
 			newinfo = {}
 			newinfo['title'] = title
