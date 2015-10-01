@@ -6,7 +6,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 def send_email(sender, receivers, news):
-
 	if len(news) == 0:
 		return
 
@@ -22,7 +21,7 @@ def send_email(sender, receivers, news):
 			<strong>【##title##】</strong>已经在学生办网站发布了!
 		</p>
 		<p>
-			原文链接 --->##url##
+			原文链接 ---> ##url##
 		</p>
 		<p>
 			------------------------------------
@@ -79,6 +78,22 @@ def checkRelativity(title):
 			return False
 	return True
 
+def attachImages(content):
+	url_base = 'http://xsb.seiee.sjtu.edu.cn'
+	image_start = 0
+	while True:
+		print 1
+		image_start = content.find('<p><img id="showImage\"',image_start+1)
+		if image_start == -1:
+			break
+		else:
+			src_start = content.find('src',image_start)
+			src_end = content.find('\"',src_start + 5)
+			origin_image_url = content[src_start+5:src_end]
+			image_url = url_base + origin_image_url.replace(';','&')
+			content = content.replace(origin_image_url,image_url)
+	return content
+
 # get news title, content, and url
 def getInfo(logfile,date = None):
 	url = 'http://xsb.seiee.sjtu.edu.cn/xsb/index.htm'
@@ -117,6 +132,7 @@ def getInfo(logfile,date = None):
 			content_start = content_page.find('<p>',0)
 			content_end = content_page.find('<script>',content_start)
 			content = content_page[content_start:content_end-1]
+			content = attachImages(content)
 
 			newinfo = {}
 			newinfo['title'] = title
