@@ -5,15 +5,22 @@ filter the information by user's identity and send all the content(including fil
 
 ### Usage
 
-The script is run by reading the config file. Make sure you create a config file before excution.
-**example:**
+The script is run by reading the config file. **Make sure you create a config file before excution**
+
+**Example:**
 /setting.conf
-/[sender/]
-address: **YOUR SENDING GMAIL** (support Gmail only for now)
-name: **YOUR SENDING NAME** (will display at 'From')
-key: **YOUR GMAIL PASSWORD**
+
+[sender]
+
+address: YOUR SENDING GMAIL
+
+name: YOUR SENDING NAME
+
+key: YOUR GMAIL PASSWORD
 
 [receivers]
-receivers= **user@example.com,user2@example.com** (the address are split by `,`)
+
+receivers= RECEIVER EMAIL ADDRESS,RECEIVER EMAIL ADDRESS 
+> receivers' address are split by `,`
 
 
