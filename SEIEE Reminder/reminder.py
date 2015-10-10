@@ -18,7 +18,7 @@ def send_email(sender, receivers, news):
 	  <head></head>
 	  <body>
 		<p>
-			<strong>【##title##】</strong>已经在学生办网站发布了!
+			<strong>##title##</strong> 已经在学生办网站发布了!
 		</p>
 		<p>
 			原文链接 ---> ##url##
@@ -39,7 +39,7 @@ def send_email(sender, receivers, news):
 	</html>
 	"""
 
-	
+	#connect gmail server
 	try:
 		server = smtplib.SMTP('smtp.gmail.com:587')
 		server.ehlo()
@@ -49,7 +49,6 @@ def send_email(sender, receivers, news):
 		print "smtp.gmail.com connection failed"
 		return
 	
-
 	for i in range(0,len(news)):
 		title = news[i]['title']
 		url = news[i]['url']
@@ -60,7 +59,7 @@ def send_email(sender, receivers, news):
 		msg['From'] = sender_name
 
 		html = html_template.replace('##title##',title).replace('##url##',url).replace('##content##',content)
-		msg.attach(MIMEText(html, 'html'))
+		msg.attach(MIMEText(html, 'html', 'utf-8'))
 
 		for j in range(0,len(receivers)):
 			del msg['To']
@@ -182,8 +181,8 @@ def push(date = None):
 
 	logfile = open('log.txt','a')
 
-	sender = configSectionMap('sender','reminder-setting.conf')
-	receivers_dic = configSectionMap('receivers','reminder-setting.conf')
+	sender = configSectionMap('sender','setting.conf')
+	receivers_dic = configSectionMap('receivers','setting.conf')
 	receivers = receivers_dic['receivers'].split(',')
 
 	write_log(logfile,'--------------------Task begin--------------------')
@@ -200,4 +199,4 @@ def push(date = None):
 	logfile.close()
 
 if __name__ == '__main__':
-	push('2015-09-29')
+	push()
