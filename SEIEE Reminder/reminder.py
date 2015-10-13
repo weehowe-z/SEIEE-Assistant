@@ -107,7 +107,7 @@ def attachFiles(content):
 	return content
 
 # get news title, content, and url
-def getInfo(logfile,date = None):
+def getNews(logfile,date = None):
 	url = 'http://xsb.seiee.sjtu.edu.cn/xsb/index.htm'
 	url_base = 'http://xsb.seiee.sjtu.edu.cn'
 	news = []
@@ -191,7 +191,7 @@ def push(date = None):
 	for i in range(0,len(receivers)):
 		write_log(logfile,receivers[i])
 
-	news = getInfo(logfile,date)
+	news = getNews(logfile,date)
 	send_email(sender,receivers,news)
 
 	write_log(logfile,'[Current Time]',True)
