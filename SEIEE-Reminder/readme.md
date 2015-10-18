@@ -20,7 +20,7 @@ key: YOUR GMAIL PASSWORD
 
 [receivers]
 
-receivers= RECEIVER EMAIL ADDRESS,RECEIVER EMAIL ADDRESS 
+receivers: RECEIVER EMAIL ADDRESS,RECEIVER EMAIL ADDRESS 
 > receivers' address are split by `,`
 
 
