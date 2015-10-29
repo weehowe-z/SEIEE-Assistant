@@ -1,9 +1,19 @@
 # -*- coding:utf-8 -*- 
-import smtplib,urllib2
-import ConfigParser
-import datetime
+import smtplib,urllib,urllib2,ConfigParser,datetime,requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+url_base = 'http://xsb.seiee.sjtu.edu.cn'
+intern_url_base = 'http://xsb.seiee.sjtu.edu.cn/xsb/list/2496-1-20.htm'
+fulltime_url_base = 'http://xsb.seiee.sjtu.edu.cn/xsb/list/2495-1-20.htm'
+page_url_template = 'http://xsb.seiee.sjtu.edu.cn/xsb/detail/id.htm?nocache=1'
+
+data_url = 'https://leancloud.cn/1.1/classes/interns'
+data_headers = {'Content-Type': 'application/json',
+				'X-LC-Id': 'BH1ggDkDzqXkdREQpWjoGjOp',
+				'X-LC-Key': 'h0vTbVQmrAN7pWV7XTqckLcP'
+				}
+
 
 def send_email(sender, receivers, news):
 	if len(news) == 0:
@@ -17,14 +27,6 @@ def send_email(sender, receivers, news):
 	<html>
 	  <head></head>
 	  <body>
-		<p>
-			<strong>##title##</strong> 已经在学生办网站发布了!
-		</p>
-		<p>
-			原文链接 ---> ##url##
-		</p>
-		<p>
-			------------------------------------
 		</p>
 			##content##
 		<p>
@@ -34,7 +36,7 @@ def send_email(sender, receivers, news):
 			------------------------------------
 		</p>
 		<span><strong><small>&copy;<i>2015 SEIEE Reminder<i/></small></strong></span>&nbsp;&nbsp;&nbsp;	
-		<span><small><i>Fork me on <a href="https://github.com/weehowe-z/littleProjects">GitHub</a></i></small></span>
+		<span><small><i><a href="http://blog.delvin.xyz">Contact me</a></i></small></span>
 	  </body>
 	</html>
 	"""
@@ -55,10 +57,10 @@ def send_email(sender, receivers, news):
 		content = news[i]['content']
 
 		msg = MIMEMultipart('alternative')
-		msg['Subject'] = '【电院提醒】' + title
+		msg['Subject'] = '【实习生招聘】' + title
 		msg['From'] = sender_name
 
-		html = html_template.replace('##title##',title).replace('##url##',url).replace('##content##',content)
+		html = html_template.replace('##content##',content)
 		msg.attach(MIMEText(html, 'html', 'utf-8'))
 
 		for j in range(0,len(receivers)):
@@ -68,14 +70,6 @@ def send_email(sender, receivers, news):
 			server.sendmail(sender_add,[receivers[j]],msg.as_string())
 	
 	server.quit()
-
-# !!require further upgrade
-def checkRelativity(title):
-	keyword = ['研究生','硕士','博士']
-	for i in range(0,len(keyword)):
-		if title.find(keyword[i]) != -1 and title.find('本科') == -1:
-			return False
-	return True
 
 def attachImages(content):
 	url_base = 'http://xsb.seiee.sjtu.edu.cn'
@@ -107,57 +101,60 @@ def attachFiles(content):
 	return content
 
 # get news title, content, and url
-def getNews(logfile,date = None):
-	url = 'http://xsb.seiee.sjtu.edu.cn/xsb/index.htm'
-	url_base = 'http://xsb.seiee.sjtu.edu.cn'
-	news = []
-
+def getAllInfo():
+	url = intern_url_base
+	infos = []
 	try:
 		page = urllib2.urlopen(url,timeout=5).read()
 	except:
-		write_log(logfile,"[Error]Cannot access to website")
 		print "[Error]Cannot access to website"
 		return None
-
-	#default date is current time
-	if date == None:
-		today = datetime.datetime.now().date()
-		today_str = today.strftime('%Y-%m-%d')
-	else:
-		today_str = date
-	
-	spanpos = 0
+	currentPos = 0
 	while True:
-		startpos = page.find('<a title="',spanpos)
+		startpos = page.find('<li><span>',currentPos)
 		if startpos == -1:#not find
 			break
-		spanpos = page.find('<span>',startpos)
-		date = page[spanpos+7:spanpos+17]
-		if date == today_str:
-			hrefpos_start = page.find('href=',startpos)
-			hrefpos_end = page.find('target=',startpos)
-			href = page[hrefpos_start+6:hrefpos_end-2]
-			title = page[startpos+10:hrefpos_start-2]
-			info_url = url_base + href
+		#get unique id
+		idStartPos = page.find('/detail',startpos)
+		idEndPos = page.find('.htm',idStartPos)
+		id = page[idStartPos + len('/detail') + 1:idEndPos]
 
-			content_page = urllib2.urlopen(info_url,timeout=5).read()
-			content_start = content_page.find('<p>',0)
-			content_end = content_page.find('<script>',content_start)
-			content = content_page[content_start:content_end-1]
-			content = attachImages(content)
-			content = attachFiles(content)
+		#check id valid
+		query = "{\"specid\": \""+ id +"\"}"
+		para =  {'where': query } 
+		x = requests.get(url= data_url, headers = data_headers, params = para, timeout = 10)
+		if len(x.json()['results']) != 0:
+			currentPos = idEndPos
+			continue
+		
+		titleStartPos = page.find('title',idEndPos)
+		titleEndPos = page.find('target',titleStartPos)
+		title = page[titleStartPos + len('title') + 2:titleEndPos-2]
 
-			newinfo = {}
-			newinfo['title'] = title
-			newinfo['url'] = info_url
-			newinfo['content'] = content
 
-			if checkRelativity(title) == True:
-				news.append(newinfo)
-				write_log(logfile,"[News] Get useful information: [" + newinfo['title'] + "]")
-			else:
-				write_log(logfile,"[News] Get useless information: [" + newinfo['title'] + "]")
-	return news
+		page_url = page_url_template.replace("id",id)
+		
+		content_page = urllib2.urlopen(page_url,timeout=5).read()
+		content_start = content_page.find('<p>',0)
+		content_end = content_page.find('<p style',content_start)
+		content = content_page[content_start:content_end-1]
+
+		content = attachImages(content)
+		content = attachFiles(content)
+
+		newinfo = {}
+		newinfo['title'] = title
+		newinfo['content'] = content
+		newinfo['url'] = page_url
+		newinfo['specid'] = id
+		infos.append(newinfo)
+		
+		#save news
+		requests.post(url= data_url, json = newinfo, headers = data_headers, timeout = 10)
+
+		currentPos = idEndPos
+		
+	return infos
 
 # map conf sections into library
 def configSectionMap(section,config_path):
@@ -169,34 +166,16 @@ def configSectionMap(section,config_path):
 		dict[key] = value
 	return dict
 
-def write_log(logfile,string,need_time = False):
-	if need_time == False:
-		logfile.write(string+'\n')
-	else:
-		time = datetime.datetime.now()
-		time_str = time.strftime('%Y-%m-%d %H:%M:%S')
-		logfile.write(string + '\t' + time_str +'\n')
+def push():
 
-def push(date = None):
-
-	logfile = open('log.txt','a')
 
 	sender = configSectionMap('sender','setting.conf')
 	receivers_dic = configSectionMap('receivers','setting.conf')
 	receivers = receivers_dic['receivers'].split(',')
 
-	write_log(logfile,'--------------------Task begin--------------------')
-	write_log(logfile,'[Current Time]',True)
-	write_log(logfile,'[Receivers]:')
-	for i in range(0,len(receivers)):
-		write_log(logfile,receivers[i])
+	infos = getAllInfo()
+	send_email(sender,receivers,infos)
 
-	news = getNews(logfile,date)
-	send_email(sender,receivers,news)
-
-	write_log(logfile,'[Current Time]',True)
-	write_log(logfile,'--------------------Task finish--------------------\n')
-	logfile.close()
 
 if __name__ == '__main__':
 	push()
