@@ -3,6 +3,8 @@ import smtplib,urllib2,ConfigParser,datetime,requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+url_base = 'http://xsb.seiee.sjtu.edu.cn'
+
 def send_email(sender, receivers, news):
 	if len(news) == 0:
 		return
@@ -76,7 +78,6 @@ def checkRelativity(title):
 	return True
 
 def attachImages(content):
-	url_base = 'http://xsb.seiee.sjtu.edu.cn'
 	image_start = 0
 	while True:
 		image_start = content.find('<p><img id="showImage\"',image_start+1)
@@ -91,7 +92,6 @@ def attachImages(content):
 	return content
 
 def attachFiles(content):
-	url_base = 'http://xsb.seiee.sjtu.edu.cn'
 	file_start = 0
 	while True:
 		file_start = content.find('<a href="/content/',file_start+1)
@@ -104,10 +104,8 @@ def attachFiles(content):
 			content = content.replace(origin_file_url,file_url)
 	return content
 
-# get news title, content, and url
 def getNews(logfile,date = None):
-	url = 'http://xsb.seiee.sjtu.edu.cn/xsb/index.htm'
-	url_base = 'http://xsb.seiee.sjtu.edu.cn'
+	url = url_base + '/xsb/index.htm'
 	news = []
 
 	try:
