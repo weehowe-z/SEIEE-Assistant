@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container-fluid">
+      <div class="center-block">
+        <h1 id="head"><span>Exciting</span><span id="exclamation">!</span></h1>
+        <br/>
+        <br/>
+        <div class="row">
+          <div class="col-xs-1"></div>
+          <div class="col-xs-10">
+              <form action="/search" method="get">
+              <input type="search" name ="q" class="form-control" id="search-box" placeholder="Search Whatever You Want!">
+          </div>
+          <div class="col-xs-1"></div>
+        </div>
+        <br/>
+        <div class="row">
+          <div class="col-xs-1"></div>
+          <div class="col-xs-10">
+            <button type="submit" class="btn btn-primary btn-block visible-xs-block" id="search-button" >Search</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-4">
+          </div>
+          <div class="col-xs-2">
+              <button type="submit" class="btn btn-primary btn-block hidden-xs" id="search-button" >Search</button>
+          </div>
+          </form><!-- dose it valid? -->
+          <div class="col-xs-2">
+            <button type="submit" class="btn btn-default btn-block hidden-xs" id="search-button" >Exciting!</button>
+          </div>
+          <div class="col-xs-4">
+          </div>
+        </div>
+      </div>
+    </div><!-- /.container -->
+{% endblock %}
