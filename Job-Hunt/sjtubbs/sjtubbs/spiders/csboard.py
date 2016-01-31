@@ -8,7 +8,7 @@ class CsboardSpider(scrapy.Spider):
 	url_base = "https://bbs.sjtu.edu.cn/"
 	# allowed_domains = ["https://bbs.sjtu.edu.cn/"]
 	start_urls = (
-		'https://bbs.sjtu.edu.cn/bbsdoc?board=CS',
+		'https://bbs.sjtu.edu.cn/bbsdoc?board=JobInfo',
 	)
 
 	def parse(self, response):
@@ -30,5 +30,4 @@ class CsboardSpider(scrapy.Spider):
 		item = response.meta['item']
 		text = response.xpath('//pre/text()').extract()
 		item['text'] = text[1]
-		# print text[1]
 		yield item

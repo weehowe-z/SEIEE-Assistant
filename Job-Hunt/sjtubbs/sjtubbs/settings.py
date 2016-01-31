@@ -14,6 +14,8 @@ BOT_NAME = 'sjtubbs'
 SPIDER_MODULES = ['sjtubbs.spiders']
 NEWSPIDER_MODULE = 'sjtubbs.spiders'
 
+MONGO_URI = 'mongodb://localhost:27017'
+MONGO_DATABASE = 'sjtubbs'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'sjtubbs (+http://www.yourdomain.com)'
@@ -61,9 +63,9 @@ NEWSPIDER_MODULE = 'sjtubbs.spiders'
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'sjtubbs.pipelines.SomePipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'sjtubbs.pipelines.SjtubbsPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
