@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block content %}
+	<br/>
+	<div class="container-fluid">
+		<div class="row">
+		<div class="col-xs-1"></div>
+		<div class="col-xs-10 visible-xs-block">
+			<form action="/search" method="get" class="form-inline">
+			<div class="input-group">
+				<input type="search" name ="q" class="form-control">
+				<span class="input-group-addon btn-primary" onclick="$('button[id=hidden-button]').click();">Search</span>
+				<button type="submit" class="btn btn-primary hidden" id="hidden-button">Search</button>
+			</div>
+			</form>
+		</div>
+
+		<div class="col-xs-6 hidden-xs">
+
+			<form action="/search" method="get">
+              <input type="search" name ="q" class="form-control" id="search-box" placeholder="Search Whatever You Want!">
+		</div>
+
+        <div class="col-xs-2 hidden-xs">
+            <button type="submit" class="btn btn-primary btn-block" id="search-button" >Search</button>
+        </div>
+            </form>
+		</div>
+	</div><!-- /.container -->
+
+
+    <hr>
+    <div class="container-fluid">
+        	<div class="row">
+        	<div class="col-xs-1"></div>
+        	<div class="col-xs-11">
+	        	{% if result|length != 0  %}
+	        		{% for row in result %}
+	        			<p><a href="{{ row[1] }} " target="__blank"><strong>{{ row[0] }}</strong></a></p>
+	        			<p>... {{ row[6][-10:] }}<strong>{{ row[2][0:row[3]] }}</strong>{{ row[2][row[3]:50] }} ...</p>
+	        			<p class="url-color">
+	        				<small>作者: {{ row[4] }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布日期: {{ row[5] }}</small>
+	        			</p>	
+	        			<p class="url-color hidden-xs">
+	        				<small>{{ row[1] }}</small>
+	        			</p>	
+	        			<hr>
+	        		{% endfor %}
+				{% else %}
+					<p>∑(っ °Д °;)っ</p>
+					<p>您查找的内容还未收录!  </p>
+					<p>试试搜索别的吧，“计算机”怎么样?</p>
+				{% endif %}
+			</div>
+      		</div>
+    </div><!-- /.container -->
+{% endblock %}

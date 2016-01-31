@@ -8,7 +8,11 @@
 import scrapy
 
 
-class TutorialItem(scrapy.Item):
+class SjtubbsItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+	title = scrapy.Field()
+	date = scrapy.Field()
+	url = scrapy.Field()
+	id = scrapy.Field()
+	text = scrapy.Field()
